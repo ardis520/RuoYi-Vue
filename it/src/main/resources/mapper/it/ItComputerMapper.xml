@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.it.mapper.ItComputerMapper">
+
+    <resultMap type="ItComputer" id="ItComputerResult">
+        <result property="uid" column="uid"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="computerType" column="computer_type"/>
+        <result property="computerUser" column="computer_user"/>
+        <result property="computerBrand" column="computer_brand"/>
+        <result property="computerCpu" column="computer_cpu"/>
+        <result property="computerMemory" column="computer_memory"/>
+        <result property="computerDisk" column="computer_disk"/>
+        <result property="computerMonitor" column="computer_monitor"/>
+        <result property="computerUsetime" column="computer_usetime"/>
+        <result property="computerCode" column="computer_code"/>
+        <result property="status" column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <association property="dept"    column="dept_id" javaType="SysDept" resultMap="deptResult" />
+    </resultMap>
+
+    <resultMap id="deptResult" type="SysDept">
+        <id     property="deptId"   column="dept_id"     />
+        <result property="deptName" column="dept_name"   />
+    </resultMap>
+
+    <sql id="selectItComputerVo">
+        select u.uid,
+               u.dept_id,
+               u.computer_type,
+               u.computer_user,
+               u.computer_brand,
+               u.computer_cpu,
+               u.computer_memory,
+               u.computer_disk,
+               u.computer_monitor,
+               u.computer_usetime,
+               u.computer_code,
+               u.del_flag,
+               u.status,
+               u.create_by,
+               u.create_time,
+               u.remark,
+               d.dept_name
+        from it_computer u
+                 left join sys_dept d on u.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectItComputerList" parameterType="ItComputer" resultMap="ItComputerResult">
+        <include refid="selectItComputerVo"/>
+        <where>
+            <if test="deptId != null and deptId != 0">
+                AND (u.dept_id = #{deptId} OR u.dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{deptId}, ancestors) ))
+            </if>
+<!--            <if test="deptId != null ">and u.dept_id = #{deptId}</if>-->
+            <if test="computerType != null  and computerType != ''">and computer_type = #{computerType}</if>
+            <if test="computerUser != null  and computerUser != ''">and computer_user = #{computerUser}</if>
+            <if test="computerBrand != null  and computerBrand != ''">and computer_brand = #{computerBrand}</if>
+            <if test="computerCpu != null  and computerCpu != ''">and computer_cpu = #{computerCpu}</if>
+            <if test="computerMemory != null  and computerMemory != ''">and computer_memory = #{computerMemory}</if>
+            <if test="computerDisk != null  and computerDisk != ''">and computer_disk = #{computerDisk}</if>
+            <if test="computerMonitor != null  and computerMonitor != ''">and computer_monitor = #{computerMonitor}</if>
+
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(u.computer_usetime,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(u.computer_usetime,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+
+<!--            <if test="computerUsetime != null ">and computer_usetime = #{computerUsetime}</if>-->
+            <if test="computerCode != null  and computerCode != ''">and computer_code = #{computerCode}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectItComputerByUid" parameterType="Long" resultMap="ItComputerResult">
+        <include refid="selectItComputerVo"/>
+        where uid = #{uid}
+    </select>
+
+    <insert id="insertItComputer" parameterType="ItComputer" useGeneratedKeys="true" keyProperty="uid">
+        insert into it_computer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">dept_id,</if>
+            <if test="computerType != null">computer_type,</if>
+            <if test="computerUser != null">computer_user,</if>
+            <if test="computerBrand != null">computer_brand,</if>
+            <if test="computerCpu != null">computer_cpu,</if>
+            <if test="computerMemory != null">computer_memory,</if>
+            <if test="computerDisk != null">computer_disk,</if>
+            <if test="computerMonitor != null">computer_monitor,</if>
+            <if test="computerUsetime != null">computer_usetime,</if>
+            <if test="computerCode != null">computer_code,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">#{deptId},</if>
+            <if test="computerType != null">#{computerType},</if>
+            <if test="computerUser != null">#{computerUser},</if>
+            <if test="computerBrand != null">#{computerBrand},</if>
+            <if test="computerCpu != null">#{computerCpu},</if>
+            <if test="computerMemory != null">#{computerMemory},</if>
+            <if test="computerDisk != null">#{computerDisk},</if>
+            <if test="computerMonitor != null">#{computerMonitor},</if>
+            <if test="computerUsetime != null">#{computerUsetime},</if>
+            <if test="computerCode != null">#{computerCode},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateItComputer" parameterType="ItComputer">
+        update it_computer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="computerType != null">computer_type = #{computerType},</if>
+            <if test="computerUser != null">computer_user = #{computerUser},</if>
+            <if test="computerBrand != null">computer_brand = #{computerBrand},</if>
+            <if test="computerCpu != null">computer_cpu = #{computerCpu},</if>
+            <if test="computerMemory != null">computer_memory = #{computerMemory},</if>
+            <if test="computerDisk != null">computer_disk = #{computerDisk},</if>
+            <if test="computerMonitor != null">computer_monitor = #{computerMonitor},</if>
+            <if test="computerUsetime != null">computer_usetime = #{computerUsetime},</if>
+            <if test="computerCode != null">computer_code = #{computerCode},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where uid = #{uid}
+    </update>
+
+    <delete id="deleteItComputerByUid" parameterType="Long">
+        delete
+        from it_computer
+        where uid = #{uid}
+    </delete>
+
+    <delete id="deleteItComputerByUids" parameterType="String">
+        delete from it_computer where uid in
+        <foreach item="uid" collection="array" open="(" separator="," close=")">
+            #{uid}
+        </foreach>
+    </delete>
+</mapper>
